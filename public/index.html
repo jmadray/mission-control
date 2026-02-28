@@ -1,0 +1,987 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mission Control - JAMLIFE</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: #0a0e1a;
+            color: #e5e7eb;
+            overflow-x: hidden;
+        }
+        
+        /* Sidebar */
+        .sidebar {
+            position: fixed;
+            left: 0;
+            top: 0;
+            width: 240px;
+            height: 100vh;
+            background: #111827;
+            border-right: 1px solid #374151;
+            z-index: 1000;
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .sidebar-header {
+            padding: 24px;
+            border-bottom: 1px solid #374151;
+        }
+        
+        .sidebar-logo {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        
+        .sidebar-logo i {
+            font-size: 20px;
+            color: #10b981;
+        }
+        
+        .sidebar-logo h1 {
+            font-size: 18px;
+            font-weight: 700;
+            color: #f9fafb;
+        }
+        
+        .sidebar-nav {
+            flex: 1;
+            padding: 24px 0;
+        }
+        
+        .nav-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 12px 24px;
+            color: #9ca3af;
+            text-decoration: none;
+            transition: all 0.2s;
+            cursor: pointer;
+        }
+        
+        .nav-item:hover,
+        .nav-item.active {
+            background: #1f2937;
+            color: #10b981;
+        }
+        
+        .nav-item i {
+            font-size: 16px;
+            width: 16px;
+        }
+        
+        /* Main Content */
+        .main-content {
+            margin-left: 240px;
+            min-height: 100vh;
+            background: #0a0e1a;
+        }
+        
+        .main-header {
+            background: #111827;
+            border-bottom: 1px solid #374151;
+            padding: 20px 32px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .main-header h1 {
+            font-size: 24px;
+            font-weight: 600;
+            color: #f9fafb;
+        }
+        
+        .status-badge {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 8px 16px;
+            background: #059669;
+            color: #ffffff;
+            border-radius: 6px;
+            font-size: 14px;
+            font-weight: 500;
+        }
+        
+        .status-dot {
+            width: 8px;
+            height: 8px;
+            background: #34d399;
+            border-radius: 50%;
+        }
+        
+        /* Dashboard Content */
+        .dashboard-content {
+            padding: 32px;
+        }
+        
+        .section {
+            display: none;
+        }
+        
+        .section.active {
+            display: block;
+        }
+        
+        .section-title {
+            font-size: 20px;
+            font-weight: 600;
+            color: #f9fafb;
+            margin-bottom: 24px;
+        }
+        
+        .cards-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(380px, 1fr));
+            gap: 24px;
+            margin-bottom: 32px;
+        }
+        
+        .card {
+            background: #111827;
+            border: 1px solid #374151;
+            border-radius: 12px;
+            padding: 24px;
+        }
+        
+        .card-header {
+            display: flex;
+            justify-content: between;
+            align-items: center;
+            margin-bottom: 16px;
+        }
+        
+        .card-title {
+            font-size: 16px;
+            font-weight: 600;
+            color: #f9fafb;
+        }
+        
+        .card-subtitle {
+            font-size: 14px;
+            color: #9ca3af;
+            margin-bottom: 16px;
+        }
+        
+        /* Tables */
+        .table-container {
+            background: #111827;
+            border: 1px solid #374151;
+            border-radius: 12px;
+            overflow: hidden;
+        }
+        
+        .table-header {
+            padding: 20px 24px;
+            border-bottom: 1px solid #374151;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .table-title {
+            font-size: 16px;
+            font-weight: 600;
+            color: #f9fafb;
+        }
+        
+        .table-subtitle {
+            font-size: 14px;
+            color: #9ca3af;
+        }
+        
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        
+        th {
+            background: #1f2937;
+            padding: 12px 16px;
+            text-align: left;
+            font-size: 12px;
+            font-weight: 600;
+            color: #9ca3af;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+        
+        td {
+            padding: 12px 16px;
+            border-bottom: 1px solid #374151;
+            font-size: 14px;
+        }
+        
+        tbody tr:hover {
+            background: #1f2937;
+        }
+        
+        tbody tr:last-child td {
+            border-bottom: none;
+        }
+        
+        .status-indicator {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .status-dot-small {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+        }
+        
+        .status-running {
+            background: #10b981;
+        }
+        
+        .status-stopped {
+            background: #ef4444;
+        }
+        
+        .status-text {
+            font-size: 12px;
+            font-weight: 500;
+        }
+        
+        .status-text.running {
+            color: #10b981;
+        }
+        
+        .status-text.stopped {
+            color: #ef4444;
+        }
+        
+        .container-name {
+            font-weight: 600;
+            color: #f9fafb;
+        }
+        
+        .container-image {
+            color: #9ca3af;
+            font-size: 12px;
+        }
+        
+        /* System Metrics - Enhanced */
+        .metrics-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 20px;
+            margin-bottom: 32px;
+        }
+        
+        .metric-card {
+            background: #111827;
+            border: 1px solid #374151;
+            border-radius: 12px;
+            padding: 20px;
+            text-align: center;
+        }
+        
+        .metric-value {
+            font-size: 32px;
+            font-weight: 700;
+            color: #10b981;
+            margin-bottom: 8px;
+        }
+        
+        .metric-label {
+            font-size: 14px;
+            color: #9ca3af;
+        }
+        
+        .host-card {
+            background: #111827;
+            border: 1px solid #374151;
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+        
+        .host-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 16px;
+        }
+        
+        .host-name {
+            font-size: 18px;
+            font-weight: 600;
+            color: #f9fafb;
+        }
+        
+        .host-type {
+            font-size: 12px;
+            color: #9ca3af;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+        
+        .host-status {
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 12px;
+            font-weight: 500;
+        }
+        
+        .host-status.online {
+            background: #10b981;
+            color: #000;
+        }
+        
+        .host-status.pending {
+            background: #f59e0b;
+            color: #000;
+        }
+        
+        .host-status.offline {
+            background: #ef4444;
+            color: #fff;
+        }
+        
+        .host-metrics {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+            gap: 16px;
+        }
+        
+        .host-metric {
+            text-align: center;
+        }
+        
+        .host-metric-value {
+            font-size: 24px;
+            font-weight: 700;
+            color: #10b981;
+        }
+        
+        .host-metric-label {
+            font-size: 12px;
+            color: #9ca3af;
+            margin-top: 4px;
+        }
+        
+        /* Loading State */
+        .loading {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 40px;
+            color: #6b7280;
+            font-style: italic;
+        }
+        
+        .loading i {
+            margin-right: 8px;
+            animation: spin 1s linear infinite;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        /* Responsive */
+        @media (max-width: 768px) {
+            .sidebar {
+                transform: translateX(-100%);
+            }
+            
+            .main-content {
+                margin-left: 0;
+            }
+            
+            .cards-grid, .metrics-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            table {
+                font-size: 12px;
+            }
+            
+            th, td {
+                padding: 8px 12px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Sidebar -->
+    <div class="sidebar">
+        <div class="sidebar-header">
+            <div class="sidebar-logo">
+                <i class="fas fa-satellite-dish"></i>
+                <h1>Mission Control</h1>
+            </div>
+        </div>
+        
+        <nav class="sidebar-nav">
+            <a href="#" class="nav-item active" data-section="overview">
+                <i class="fas fa-chart-pie"></i>
+                <span>Overview</span>
+            </a>
+            <a href="#" class="nav-item" data-section="containers">
+                <i class="fab fa-docker"></i>
+                <span>Container Status</span>
+            </a>
+            <a href="#" class="nav-item" data-section="system">
+                <i class="fas fa-server"></i>
+                <span>System Resources</span>
+            </a>
+            <a href="#" class="nav-item" data-section="network">
+                <i class="fas fa-network-wired"></i>
+                <span>Network</span>
+            </a>
+            <a href="#" class="nav-item" data-section="logs">
+                <i class="fas fa-list-ul"></i>
+                <span>Recent Activity</span>
+            </a>
+        </nav>
+    </div>
+    
+    <!-- Main Content -->
+    <div class="main-content">
+        <div class="main-header">
+            <h1 id="section-title">Overview</h1>
+            <div class="status-badge" id="connectionStatus">
+                <div class="status-dot"></div>
+                <span>ONLINE</span>
+            </div>
+        </div>
+        
+        <div class="dashboard-content">
+            <!-- Overview Section -->
+            <div class="section active" id="overview">
+                <div class="cards-grid">
+                    <div class="card">
+                        <div class="card-header">
+                            <div class="card-title">System Status</div>
+                        </div>
+                        <div id="systemInfo" class="loading">
+                            <i class="fas fa-spinner"></i>
+                            Loading system information...
+                        </div>
+                    </div>
+                    
+                    <div class="card">
+                        <div class="card-header">
+                            <div class="card-title">Quick Stats</div>
+                        </div>
+                        <div id="quickStats" class="loading">
+                            <i class="fas fa-spinner"></i>
+                            Loading statistics...
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="table-container">
+                    <div class="table-header">
+                        <div>
+                            <div class="table-title">Running Containers</div>
+                            <div class="table-subtitle">Active infrastructure services</div>
+                        </div>
+                    </div>
+                    <table id="runningContainersTable">
+                        <thead>
+                            <tr>
+                                <th>Container</th>
+                                <th>Image</th>
+                                <th>Status</th>
+                                <th>Uptime</th>
+                            </tr>
+                        </thead>
+                        <tbody id="runningContainers">
+                            <tr>
+                                <td colspan="4" class="loading">
+                                    <i class="fas fa-spinner"></i>
+                                    Loading containers...
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            
+            <!-- Container Status Section -->
+            <div class="section" id="containers">
+                <div class="section-title">Container Management</div>
+                <div class="table-container">
+                    <div class="table-header">
+                        <div>
+                            <div class="table-title">All Containers</div>
+                            <div class="table-subtitle">Complete infrastructure overview</div>
+                        </div>
+                    </div>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Container</th>
+                                <th>Image</th>
+                                <th>Status</th>
+                                <th>State</th>
+                                <th>Created</th>
+                            </tr>
+                        </thead>
+                        <tbody id="containerList">
+                            <tr>
+                                <td colspan="5" class="loading">
+                                    <i class="fas fa-spinner"></i>
+                                    Loading containers...
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            
+            <!-- System Resources Section -->
+            <div class="section" id="system">
+                <div class="section-title">System Resources</div>
+                
+                <!-- JAMLIFE System Metrics -->
+                <div class="metrics-grid">
+                    <div class="metric-card">
+                        <div class="metric-value" id="cpuUsage">--</div>
+                        <div class="metric-label">CPU Usage</div>
+                    </div>
+                    <div class="metric-card">
+                        <div class="metric-value" id="memoryUsage">--</div>
+                        <div class="metric-label">Memory</div>
+                    </div>
+                    <div class="metric-card">
+                        <div class="metric-value" id="diskUsage">--</div>
+                        <div class="metric-label">Disk Space</div>
+                    </div>
+                    <div class="metric-card">
+                        <div class="metric-value" id="uptime">--</div>
+                        <div class="metric-label">Uptime</div>
+                    </div>
+                </div>
+                
+                <!-- Multi-Host Overview -->
+                <div class="section-title" style="margin-top: 40px;">Infrastructure Hosts</div>
+                <div id="hostsOverview">
+                    <div class="loading">
+                        <i class="fas fa-spinner"></i>
+                        Loading host information...
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Network Section -->
+            <div class="section" id="network">
+                <div class="section-title">Network Status</div>
+                <div class="card">
+                    <div class="card-title">Docker Networks</div>
+                    <div id="networkInfo" class="loading">
+                        <i class="fas fa-spinner"></i>
+                        Loading network information...
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Logs Section -->
+            <div class="section" id="logs">
+                <div class="section-title">Recent Activity</div>
+                <div class="card">
+                    <div class="card-title">System Events</div>
+                    <div id="recentActivity">No recent activity</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        class MissionControl {
+            constructor() {
+                this.ws = null;
+                this.containers = [];
+                this.systemInfo = {};
+                this.systemResources = {};
+                this.currentSection = 'overview';
+                this.init();
+            }
+            
+            init() {
+                this.setupNavigation();
+                this.connectWebSocket();
+                this.loadInitialData();
+            }
+            
+            setupNavigation() {
+                const navItems = document.querySelectorAll('.nav-item');
+                navItems.forEach(item => {
+                    item.addEventListener('click', (e) => {
+                        e.preventDefault();
+                        const section = item.dataset.section;
+                        if (section) {
+                            this.switchSection(section);
+                        }
+                    });
+                });
+            }
+            
+            switchSection(sectionName) {
+                // Update nav active state
+                document.querySelectorAll('.nav-item').forEach(item => {
+                    item.classList.toggle('active', item.dataset.section === sectionName);
+                });
+                
+                // Update section visibility
+                document.querySelectorAll('.section').forEach(section => {
+                    section.classList.toggle('active', section.id === sectionName);
+                });
+                
+                // Update header title
+                const titles = {
+                    overview: 'Overview',
+                    containers: 'Container Status',
+                    system: 'System Resources',
+                    network: 'Network Status',
+                    logs: 'Recent Activity'
+                };
+                document.getElementById('section-title').textContent = titles[sectionName] || sectionName;
+                
+                this.currentSection = sectionName;
+                this.updateCurrentSection();
+            }
+            
+            connectWebSocket() {
+                const wsProtocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
+                const wsUrl = `${wsProtocol}//${window.location.host}`;
+                
+                this.ws = new WebSocket(wsUrl);
+                
+                this.ws.onopen = () => {
+                    console.log('WebSocket connected');
+                    this.updateConnectionStatus(true);
+                };
+                
+                this.ws.onmessage = (event) => {
+                    const data = JSON.parse(event.data);
+                    if (data.type === 'update') {
+                        this.containers = data.containers;
+                        this.systemInfo = data.system;
+                        this.systemResources = data.resources;
+                        this.updateCurrentSection();
+                    }
+                };
+                
+                this.ws.onclose = () => {
+                    console.log('WebSocket disconnected');
+                    this.updateConnectionStatus(false);
+                    setTimeout(() => this.connectWebSocket(), 5000);
+                };
+                
+                this.ws.onerror = (error) => {
+                    console.error('WebSocket error:', error);
+                };
+            }
+            
+            updateConnectionStatus(connected) {
+                const statusEl = document.getElementById('connectionStatus');
+                const dot = statusEl.querySelector('.status-dot');
+                const text = statusEl.querySelector('span');
+                
+                if (connected) {
+                    statusEl.className = 'status-badge';
+                    statusEl.style.background = '#059669';
+                    dot.style.background = '#34d399';
+                    text.textContent = 'ONLINE';
+                } else {
+                    statusEl.style.background = '#dc2626';
+                    dot.style.background = '#fca5a5';
+                    text.textContent = 'OFFLINE';
+                }
+            }
+            
+            async loadInitialData() {
+                try {
+                    const [containersResponse, systemResponse, resourcesResponse] = await Promise.all([
+                        fetch('/api/containers'),
+                        fetch('/api/system'),
+                        fetch('/api/system/resources')
+                    ]);
+                    
+                    this.containers = await containersResponse.json();
+                    this.systemInfo = await systemResponse.json();
+                    this.systemResources = await resourcesResponse.json();
+                    this.updateCurrentSection();
+                } catch (error) {
+                    console.error('Error loading initial data:', error);
+                }
+            }
+            
+            updateCurrentSection() {
+                switch (this.currentSection) {
+                    case 'overview':
+                        this.updateOverview();
+                        break;
+                    case 'containers':
+                        this.updateContainers();
+                        break;
+                    case 'system':
+                        this.updateSystemMetrics();
+                        this.updateHostsOverview();
+                        break;
+                    case 'network':
+                        this.updateNetwork();
+                        break;
+                    case 'logs':
+                        this.updateLogs();
+                        break;
+                }
+            }
+            
+            updateOverview() {
+                this.updateSystemInfo();
+                this.updateQuickStats();
+                this.updateRunningContainers();
+            }
+            
+            updateSystemInfo() {
+                const systemInfoEl = document.getElementById('systemInfo');
+                if (this.systemInfo.error) {
+                    systemInfoEl.innerHTML = `<div style="color: #ef4444;">Error: ${this.systemInfo.error}</div>`;
+                    return;
+                }
+                
+                const info = this.systemInfo.info || {};
+                systemInfoEl.innerHTML = `
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px;">
+                        <div>
+                            <div style="color: #9ca3af; font-size: 14px;">Docker Version</div>
+                            <div style="color: #f9fafb; font-weight: 600;">${this.systemInfo.version?.Version || 'Unknown'}</div>
+                        </div>
+                        <div>
+                            <div style="color: #9ca3af; font-size: 14px;">Architecture</div>
+                            <div style="color: #f9fafb; font-weight: 600;">${info.Architecture || 'Unknown'}</div>
+                        </div>
+                        <div>
+                            <div style="color: #9ca3af; font-size: 14px;">OS</div>
+                            <div style="color: #f9fafb; font-weight: 600;">${info.OperatingSystem || 'Unknown'}</div>
+                        </div>
+                        <div>
+                            <div style="color: #9ca3af; font-size: 14px;">Kernel</div>
+                            <div style="color: #f9fafb; font-weight: 600;">${info.KernelVersion || 'Unknown'}</div>
+                        </div>
+                    </div>
+                `;
+            }
+            
+            updateQuickStats() {
+                const quickStatsEl = document.getElementById('quickStats');
+                const running = this.containers.filter(c => c.state === 'running').length;
+                const stopped = this.containers.filter(c => c.state !== 'running').length;
+                const info = this.systemInfo.info || {};
+                
+                quickStatsEl.innerHTML = `
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px;">
+                        <div>
+                            <div style="color: #10b981; font-size: 24px; font-weight: 700;">${running}</div>
+                            <div style="color: #9ca3af; font-size: 14px;">Running</div>
+                        </div>
+                        <div>
+                            <div style="color: #ef4444; font-size: 24px; font-weight: 700;">${stopped}</div>
+                            <div style="color: #9ca3af; font-size: 14px;">Stopped</div>
+                        </div>
+                        <div>
+                            <div style="color: #f9fafb; font-size: 24px; font-weight: 700;">${info.Images || 0}</div>
+                            <div style="color: #9ca3af; font-size: 14px;">Images</div>
+                        </div>
+                        <div>
+                            <div style="color: #f9fafb; font-size: 24px; font-weight: 700;">${this.containers.length}</div>
+                            <div style="color: #9ca3af; font-size: 14px;">Total</div>
+                        </div>
+                    </div>
+                `;
+            }
+            
+            formatUptime(status) {
+                if (!status) return 'Unknown';
+                const match = status.match(/Up (\d+ \w+)/);
+                return match ? match[1] : status;
+            }
+            
+            formatCreated(created) {
+                if (!created) return 'Unknown';
+                const date = new Date(created * 1000);
+                return date.toLocaleDateString();
+            }
+            
+            updateRunningContainers() {
+                const runningContainersEl = document.getElementById('runningContainers');
+                const runningContainers = this.containers.filter(c => c.state === 'running').slice(0, 15);
+                
+                if (!runningContainers.length) {
+                    runningContainersEl.innerHTML = '<tr><td colspan="4" style="text-align: center; color: #6b7280;">No running containers found</td></tr>';
+                    return;
+                }
+                
+                const containersHtml = runningContainers.map(container => `
+                    <tr>
+                        <td>
+                            <div class="container-name">${container.name}</div>
+                        </td>
+                        <td>
+                            <div class="container-image">${container.image}</div>
+                        </td>
+                        <td>
+                            <div class="status-indicator">
+                                <div class="status-dot-small status-running"></div>
+                                <span class="status-text running">RUNNING</span>
+                            </div>
+                        </td>
+                        <td>${this.formatUptime(container.status)}</td>
+                    </tr>
+                `).join('');
+                
+                runningContainersEl.innerHTML = containersHtml;
+            }
+            
+            updateContainers() {
+                const containerListEl = document.getElementById('containerList');
+                if (!this.containers.length) {
+                    containerListEl.innerHTML = '<tr><td colspan="5" style="text-align: center;" class="loading"><i class="fas fa-spinner"></i> No containers found</td></tr>';
+                    return;
+                }
+                
+                const containersHtml = this.containers.map(container => {
+                    const isRunning = container.state === 'running';
+                    return `
+                        <tr>
+                            <td>
+                                <div class="container-name">${container.name}</div>
+                            </td>
+                            <td>
+                                <div class="container-image">${container.image}</div>
+                            </td>
+                            <td>${container.status}</td>
+                            <td>
+                                <div class="status-indicator">
+                                    <div class="status-dot-small ${isRunning ? 'status-running' : 'status-stopped'}"></div>
+                                    <span class="status-text ${isRunning ? 'running' : 'stopped'}">
+                                        ${container.state.toUpperCase()}
+                                    </span>
+                                </div>
+                            </td>
+                            <td>${this.formatCreated(container.created)}</td>
+                        </tr>
+                    `;
+                }).join('');
+                
+                containerListEl.innerHTML = containersHtml;
+            }
+            
+            updateSystemMetrics() {
+                if (this.systemResources && !this.systemResources.error) {
+                    document.getElementById('cpuUsage').textContent = this.systemResources.cpu?.usage ? 
+                        this.systemResources.cpu.usage + '%' : '--';
+                    document.getElementById('memoryUsage').textContent = this.systemResources.memory?.percentage ? 
+                        this.systemResources.memory.percentage + '%' : '--';
+                    document.getElementById('diskUsage').textContent = this.systemResources.disk?.percentage ? 
+                        this.systemResources.disk.percentage + '%' : '--';
+                    document.getElementById('uptime').textContent = this.systemResources.uptime || '--';
+                } else {
+                    document.getElementById('cpuUsage').textContent = '--';
+                    document.getElementById('memoryUsage').textContent = '--';
+                    document.getElementById('diskUsage').textContent = '--';
+                    document.getElementById('uptime').textContent = '--';
+                }
+            }
+            
+            async updateHostsOverview() {
+                try {
+                    const response = await fetch('/api/system/hosts');
+                    const hosts = await response.json();
+                    const hostsEl = document.getElementById('hostsOverview');
+                    
+                    const hostsHtml = Object.entries(hosts).map(([key, host]) => {
+                        const statusClass = host.status === 'online' ? 'online' : 
+                                          host.status === 'pending' ? 'pending' : 'offline';
+                        
+                        let metricsHtml = '';
+                        if (host.metrics && !host.metrics.error) {
+                            metricsHtml = `
+                                <div class="host-metrics">
+                                    <div class="host-metric">
+                                        <div class="host-metric-value">${host.metrics.cpu?.usage || '--'}%</div>
+                                        <div class="host-metric-label">CPU</div>
+                                    </div>
+                                    <div class="host-metric">
+                                        <div class="host-metric-value">${host.metrics.memory?.percentage || '--'}%</div>
+                                        <div class="host-metric-label">Memory</div>
+                                    </div>
+                                    <div class="host-metric">
+                                        <div class="host-metric-value">${host.metrics.disk?.percentage || '--'}%</div>
+                                        <div class="host-metric-label">Disk</div>
+                                    </div>
+                                    <div class="host-metric">
+                                        <div class="host-metric-value">${host.metrics.uptime || '--'}</div>
+                                        <div class="host-metric-label">Uptime</div>
+                                    </div>
+                                </div>
+                            `;
+                        } else {
+                            metricsHtml = `
+                                <div style="color: #9ca3af; font-style: italic;">
+                                    ${host.metrics?.error || 'Metrics unavailable'}
+                                </div>
+                            `;
+                        }
+                        
+                        return `
+                            <div class="host-card">
+                                <div class="host-header">
+                                    <div>
+                                        <div class="host-name">${host.name}</div>
+                                        <div class="host-type">${host.type}</div>
+                                    </div>
+                                    <div class="host-status ${statusClass}">${host.status.toUpperCase()}</div>
+                                </div>
+                                ${metricsHtml}
+                            </div>
+                        `;
+                    }).join('');
+                    
+                    hostsEl.innerHTML = hostsHtml;
+                } catch (error) {
+                    console.error('Error updating hosts overview:', error);
+                    document.getElementById('hostsOverview').innerHTML = 
+                        '<div style="color: #ef4444;">Error loading host information</div>';
+                }
+            }
+            
+            updateNetwork() {
+                const networkInfoEl = document.getElementById('networkInfo');
+                networkInfoEl.innerHTML = '<div style="color: #6b7280;">Network information coming soon...</div>';
+            }
+            
+            updateLogs() {
+                const logsEl = document.getElementById('recentActivity');
+                logsEl.innerHTML = '<div style="color: #6b7280;">Recent activity logs coming soon...</div>';
+            }
+        }
+        
+        // Initialize when page loads
+        document.addEventListener('DOMContentLoaded', () => {
+            new MissionControl();
+        });
+    </script>
+</body>
+</html>

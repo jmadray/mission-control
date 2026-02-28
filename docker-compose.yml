@@ -1,0 +1,42 @@
+services:
+  mission-control:
+    restart: unless-stopped
+    container_name: mission-control
+    build: .
+    hostname: mission-control
+    environment:
+      PUID: "1000"
+      PGID: "1001"  # Docker group ID
+      TZ: "America/New_York"
+      NODE_ENV: "production"
+    networks:
+      - saltbox
+    labels:
+      com.github.saltbox.saltbox_managed: true
+      diun.enable: true
+      traefik.enable: true
+      # HTTP router (redirects to HTTPS)
+      traefik.http.routers.mission-control-http.entrypoints: web
+      traefik.http.routers.mission-control-http.middlewares: globalHeaders@file,redirect-to-https@docker,robotHeaders@file,cloudflarewarp@docker,authelia@docker
+      traefik.http.routers.mission-control-http.rule: Host(`control.jamlife.solutions`)
+      traefik.http.routers.mission-control-http.service: mission-control
+      # HTTPS router (main)
+      traefik.http.routers.mission-control.entrypoints: websecure
+      traefik.http.routers.mission-control.middlewares: globalHeaders@file,secureHeaders@file,robotHeaders@file,cloudflarewarp@docker,authelia@docker
+      traefik.http.routers.mission-control.rule: Host(`control.jamlife.solutions`)
+      traefik.http.routers.mission-control.service: mission-control
+      traefik.http.routers.mission-control.tls.certresolver: cfdns
+      traefik.http.routers.mission-control.tls.options: securetls@file
+      # Service definition
+      traefik.http.services.mission-control.loadbalancer.server.port: 3000
+    volumes:
+      - ./config:/config
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+      - /opt/saltbox:/saltbox:ro
+      - /etc/localtime:/etc/localtime:ro
+    ports:
+      - "3000:3000"
+
+networks:
+  saltbox:
+    external: true
