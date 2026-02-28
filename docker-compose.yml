@@ -9,6 +9,11 @@ services:
       PGID: "1001"  # Docker group ID
       TZ: "America/New_York"
       NODE_ENV: "production"
+      # Application configuration
+      HA_URL: "${HA_URL:-http://homeassistant:8123}"
+      HA_TOKEN: "${HA_TOKEN}"
+      RATCHET_GATEWAY_URL: "${RATCHET_GATEWAY_URL:-http://100.84.150.102:18789}"
+      RATCHET_GATEWAY_TOKEN: "${RATCHET_GATEWAY_TOKEN}"
     networks:
       - saltbox
     labels:

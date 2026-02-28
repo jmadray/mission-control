@@ -2,5 +2,8 @@ node_modules/
 config/
 .env
 .env.local
+.env.production
+.env.development
 *.log
 .DS_Store
+deploy.log

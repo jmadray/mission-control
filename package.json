@@ -11,12 +11,13 @@
     "express": "^4.18.2",
     "dockerode": "^3.3.5",
     "node-cron": "^3.0.2",
-    "ws": "^8.14.2"
+    "ws": "^8.14.2",
+    "dotenv": "^16.3.1"
   },
   "devDependencies": {
     "nodemon": "^3.0.1"
   },
-  "keywords": ["dashboard", "monitoring", "saltbox", "docker"],
+  "keywords": ["dashboard", "monitoring", "saltbox", "docker", "infrastructure"],
   "author": "Ratchet",
   "license": "MIT"
 }
