@@ -6,12 +6,10 @@ services:
     hostname: mission-control
     environment:
       PUID: "1000"
-      PGID: "1001"  # Docker group ID
+      PGID: "1001"
       TZ: "America/New_York"
       NODE_ENV: "production"
-      # Application configuration
-      HA_URL: "${HA_URL:-http://homeassistant:8123}"
-      HA_TOKEN: "${HA_TOKEN}"
+      PORT: "3000"
       RATCHET_GATEWAY_URL: "${RATCHET_GATEWAY_URL:-http://100.84.150.102:18789}"
       RATCHET_GATEWAY_TOKEN: "${RATCHET_GATEWAY_TOKEN}"
     networks:
@@ -20,24 +18,23 @@ services:
       com.github.saltbox.saltbox_managed: true
       diun.enable: true
       traefik.enable: true
-      # HTTP router (redirects to HTTPS)
+      # HTTP router
       traefik.http.routers.mission-control-http.entrypoints: web
       traefik.http.routers.mission-control-http.middlewares: globalHeaders@file,redirect-to-https@docker,robotHeaders@file,cloudflarewarp@docker,authelia@docker
       traefik.http.routers.mission-control-http.rule: Host(`control.jamlife.solutions`)
       traefik.http.routers.mission-control-http.service: mission-control
-      # HTTPS router (main)
+      # HTTPS router
       traefik.http.routers.mission-control.entrypoints: websecure
       traefik.http.routers.mission-control.middlewares: globalHeaders@file,secureHeaders@file,robotHeaders@file,cloudflarewarp@docker,authelia@docker
       traefik.http.routers.mission-control.rule: Host(`control.jamlife.solutions`)
       traefik.http.routers.mission-control.service: mission-control
       traefik.http.routers.mission-control.tls.certresolver: cfdns
       traefik.http.routers.mission-control.tls.options: securetls@file
-      # Service definition
+      # Service
       traefik.http.services.mission-control.loadbalancer.server.port: 3000
     volumes:
-      - ./config:/config
-      - /var/run/docker.sock:/var/run/docker.sock:ro
-      - /opt/saltbox:/saltbox:ro
+      # Persist task data
+      - ./data:/app/data
       - /etc/localtime:/etc/localtime:ro
     ports:
       - "3000:3000"
