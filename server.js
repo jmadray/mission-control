@@ -87,7 +87,7 @@ async function notifyRatchet(task) {
             `**Description:** ${task.description || 'No description'}\n\n` +
             `Subtasks: ${(task.subtasks || []).map(s => `\n- [ ] ${s.title}`).join('')}`;
         
-        const response = await fetch(`${RATCHET_GATEWAY_URL}/api/hook/mission-control`, {
+        const response = await fetch(`${RATCHET_GATEWAY_URL}/hooks/mission-control`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
